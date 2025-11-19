@@ -1,6 +1,8 @@
 const configuredApiBase = document.body?.dataset?.apiBase?.trim();
-const isLocalhost = ["localhost", "127.0.0.1", ""].includes(window.location.hostname);
-const API_BASE = (configuredApiBase || (isLocalhost ? "http://localhost:5000" : "")).replace(/\/$/, "");
+const isHttpProtocol = window.location.protocol.startsWith("http");
+const defaultApiBase = configuredApiBase
+  ?? (isHttpProtocol ? "" : "http://localhost:5000");
+const API_BASE = defaultApiBase.replace(/\/$/, "");
 
 const filterForm = document.getElementById("filter-form");
 const resetFiltersBtn = document.getElementById("reset-filters");
