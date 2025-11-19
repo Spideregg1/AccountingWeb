@@ -82,9 +82,14 @@ function renderTransactions(items) {
   items.forEach((item) => {
     const clone = template.content.cloneNode(true);
     clone.querySelector('[data-field="date"]').textContent = item.date;
-    clone.querySelector('[data-field="type"]').textContent = typeMap[item.type] || item.type;
+    const typeCell = clone.querySelector('[data-field="type"]');
+    const typeLabel = typeMap[item.type] || item.type;
+    typeCell.innerHTML = `<span class="type-pill type-${item.type}">${typeLabel}</span>`;
     clone.querySelector('[data-field="category"]').textContent = item.category;
-    clone.querySelector('[data-field="amount"]').textContent = Number(item.amount).toLocaleString("zh-TW", {
+    const amountCell = clone.querySelector('[data-field="amount"]');
+    amountCell.classList.add("amount");
+    amountCell.dataset.intent = item.type === 1 ? "income" : item.type === 2 ? "expense" : "transfer";
+    amountCell.textContent = Number(item.amount).toLocaleString("zh-TW", {
       style: "currency",
       currency: "TWD",
       minimumFractionDigits: 0,
@@ -218,6 +223,7 @@ function renderCalendar(summaries) {
   const startOffset = firstDay.getDay();
   const map = new Map(summaries.map((s) => [s.date, s]));
   const weekdayNames = ["日", "一", "二", "三", "四", "五", "六"];
+  const todayStr = new Date().toISOString().slice(0, 10);
 
   calendarContainer.innerHTML = "";
   weekdayNames.forEach((day) => {
@@ -245,6 +251,9 @@ function renderCalendar(summaries) {
     const cell = document.createElement("div");
     cell.className = "day";
     cell.dataset.date = dateStr;
+    if (dateStr === todayStr) {
+      cell.classList.add("today");
+    }
 
     const dateEl = document.createElement("div");
     dateEl.className = "date";

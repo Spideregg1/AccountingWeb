@@ -7,24 +7,26 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header>
-      <div>
-        <h1>管帳 ERP</h1>
-        <p>使用下方表單新增或編輯帳務資料，日曆會即時顯示已紀錄的日期。</p>
-      </div>
-      <div class="calendar-controls">
-        <button id="prev-month" type="button">&lt;</button>
-        <div id="calendar-label"></div>
-        <button id="next-month" type="button">&gt;</button>
-      </div>
-    </header>
+    <div class="app-shell">
+      <header>
+        <div>
+          <p class="eyebrow">Smart Finance Workspace</p>
+          <h1>管帳 ERP</h1>
+          <p class="lead">使用下方表單新增或編輯帳務資料，日曆會即時顯示已紀錄的日期。</p>
+        </div>
+        <div class="calendar-controls">
+          <button id="prev-month" type="button" aria-label="上一個月">&lt;</button>
+          <div id="calendar-label"></div>
+          <button id="next-month" type="button" aria-label="下一個月">&gt;</button>
+        </div>
+      </header>
 
-    <main>
-      <section class="panel">
-        <h2>查詢條件</h2>
-        <form id="filter-form" class="grid">
-          <label>
-            開始日期
+      <main>
+        <section class="panel">
+          <h2>查詢條件</h2>
+          <form id="filter-form" class="grid">
+            <label>
+              開始日期
             <input type="date" name="startDate" />
           </label>
           <label>
@@ -108,12 +110,13 @@
         </div>
       </section>
 
-      <section class="panel">
-        <h2>紀錄日曆</h2>
-        <div id="calendar" class="calendar"></div>
-        <p class="hint">點選日曆日期可快速套用查詢條件。</p>
-      </section>
-    </main>
+        <section class="panel">
+          <h2>紀錄日曆</h2>
+          <div id="calendar" class="calendar"></div>
+          <p class="hint">點選日曆日期可快速套用查詢條件。</p>
+        </section>
+      </main>
+    </div>
 
     <template id="transaction-row">
       <tr>
