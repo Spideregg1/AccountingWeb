@@ -17,6 +17,11 @@
           <p class="eyebrow">Smart Finance Workspace</p>
           <h1>管帳 ERP</h1>
           <p class="lead">使用下方表單新增或編輯帳務資料，日曆會即時顯示已紀錄的日期。</p>
+          <div class="hero-meta">
+            <span class="pill">✨ 柔和介面，舒適操作</span>
+            <span class="pill">📅 日曆同步查詢</span>
+            <span class="pill">🧾 條列一目瞭然</span>
+          </div>
         </div>
         <div class="calendar-controls">
           <button id="prev-month" type="button" aria-label="上一個月">&lt;</button>
@@ -26,6 +31,37 @@
       </header>
 
       <main>
+        <section class="panel highlight-panel full-width">
+          <div>
+            <p class="eyebrow">快速導覽</p>
+            <h2>更直覺的帳務體驗</h2>
+            <p class="lead">柔和配色、圓角卡片與色彩標籤，讓新增、查詢、瀏覽都保持輕鬆。</p>
+          </div>
+          <div class="highlight-grid">
+            <div class="highlight">
+              <div class="icon">🎯</div>
+              <div>
+                <h3>聚焦資訊</h3>
+                <p>表單欄位間距更舒適，操作路徑更清晰。</p>
+              </div>
+            </div>
+            <div class="highlight">
+              <div class="icon">🌈</div>
+              <div>
+                <h3>色彩提示</h3>
+                <p>收支類型、金額與日曆狀態都有專屬色塊，辨識更快。</p>
+              </div>
+            </div>
+            <div class="highlight">
+              <div class="icon">🛟</div>
+              <div>
+                <h3>友善動作</h3>
+                <p>按鈕與提示皆採圓角 pill 風格，減少視覺壓力。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="panel">
           <h2>查詢條件</h2>
           <form id="filter-form" class="grid">
@@ -117,6 +153,12 @@
         <section class="panel">
           <h2>紀錄日曆</h2>
           <div id="calendar" class="calendar"></div>
+          <div class="legend">
+            <span class="pill type-1">收入</span>
+            <span class="pill type-2">支出</span>
+            <span class="pill type-3">轉帳</span>
+            <span class="pill neutral">今日</span>
+          </div>
           <p class="hint">點選日曆日期可快速套用查詢條件。</p>
         </section>
       </main>
