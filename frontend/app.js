@@ -1,16 +1,11 @@
 const configuredApiBase = document.body?.dataset?.apiBase?.trim();
 const isHttpProtocol = window.location.protocol.startsWith("http");
-const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
-const shouldPreferLocalApi =
-  isLocalhost && isHttpProtocol && window.location.port && window.location.port !== "5000";
 
 const resolvedApiBase = configuredApiBase && configuredApiBase.length > 0
   ? configuredApiBase
-  : shouldPreferLocalApi
-    ? "http://localhost:5000"
-    : isHttpProtocol
-      ? window.location.origin
-      : "http://localhost:5000";
+  : isHttpProtocol
+    ? window.location.origin
+    : "http://localhost:5000";
 const API_BASE = resolvedApiBase.replace(/\/$/, "");
 
 const filterForm = document.getElementById("filter-form");
@@ -49,12 +44,18 @@ const typeMap = {
 formFields.date.value = new Date().toISOString().slice(0, 10);
 
 async function fetchJson(url, options = {}) {
-  const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    ...options,
-  });
+  let res;
+
+  try {
+    res = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      ...options,
+    });
+  } catch (error) {
+    throw new Error(`無法連線至 API (${API_BASE}): ${error.message}`);
+  }
 
   if (!res.ok) {
     const message = await res.text();

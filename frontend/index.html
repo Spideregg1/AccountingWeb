@@ -8,8 +8,7 @@
   </head>
   <body>
     <!--
-      預設會呼叫當前頁面相同網域的 API。
-      若在本機以其他 port（例如 5500）開啟、而 API 在 http://localhost:5000，會自動改用 5000。
+      預設會呼叫當前頁面相同網域的 API，若從本機檔案 (file://) 開啟則改用 http://localhost:5000。
       若需跨網域存取，可在 <body> 上加入 data-api-base="https://your-api-host" 覆寫。
     -->
     <div class="app-shell">
