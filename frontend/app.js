@@ -1,12 +1,19 @@
 const configuredApiBase = document.body?.dataset?.apiBase?.trim();
 const isHttpProtocol = window.location.protocol.startsWith("http");
 
-const resolvedApiBase = configuredApiBase && configuredApiBase.length > 0
-  ? configuredApiBase
-  : isHttpProtocol
-    ? window.location.origin
-    : "http://localhost:5000";
-const API_BASE = resolvedApiBase.replace(/\/$/, "");
+function getSavedApiBase() {
+  return localStorage.getItem("apiBaseOverride")?.trim();
+}
+
+function detectApiBase() {
+  const savedApiBase = getSavedApiBase();
+  if (savedApiBase) return savedApiBase;
+  if (configuredApiBase) return configuredApiBase;
+  if (isHttpProtocol) return window.location.origin;
+  return "http://localhost:5000";
+}
+
+let API_BASE = detectApiBase().replace(/\/$/, "");
 
 const filterForm = document.getElementById("filter-form");
 const resetFiltersBtn = document.getElementById("reset-filters");
@@ -20,6 +27,10 @@ const calendarLabel = document.getElementById("calendar-label");
 const prevMonthBtn = document.getElementById("prev-month");
 const nextMonthBtn = document.getElementById("next-month");
 const formTitle = document.getElementById("form-title");
+const apiBaseInput = document.getElementById("api-base-input");
+const apiBaseStatus = document.getElementById("api-base-status");
+const apiBaseApplyBtn = document.getElementById("apply-api-base");
+const apiBaseResetBtn = document.getElementById("reset-api-base");
 
 const state = {
   editingId: null,
@@ -42,6 +53,39 @@ const typeMap = {
 };
 
 formFields.date.value = new Date().toISOString().slice(0, 10);
+
+function updateApiBaseUI(message = "") {
+  if (!apiBaseInput || !apiBaseStatus || !apiBaseApplyBtn || !apiBaseResetBtn) return;
+
+  const savedApiBase = getSavedApiBase();
+  apiBaseInput.value = savedApiBase ?? "";
+
+  const sourceLabel = savedApiBase
+    ? "已套用自訂 API 位址"
+    : configuredApiBase
+      ? "使用 data-api-base 指定的 API"
+      : isHttpProtocol
+        ? "使用目前頁面的網域"
+        : "使用本機預設 http://localhost:5000";
+
+  const messageText = message ? ` — ${message}` : "";
+  apiBaseStatus.textContent = `${sourceLabel}（目前: ${API_BASE}）${messageText}`;
+  apiBaseResetBtn.disabled = !savedApiBase;
+}
+
+function applyApiBaseOverride(newBase) {
+  const trimmed = newBase.trim();
+  if (trimmed) {
+    localStorage.setItem("apiBaseOverride", trimmed);
+    API_BASE = trimmed.replace(/\/$/, "");
+  } else {
+    localStorage.removeItem("apiBaseOverride");
+    API_BASE = detectApiBase().replace(/\/$/, "");
+  }
+
+  updateApiBaseUI();
+  Promise.all([loadTransactions(), loadCalendar()]);
+}
 
 async function fetchJson(url, options = {}) {
   let res;
@@ -84,8 +128,10 @@ async function loadTransactions() {
     const params = getFilterParams();
     const data = await fetchJson(`${API_BASE}/api/transactions?${params.toString()}`);
     renderTransactions(data);
+    updateApiBaseUI();
   } catch (error) {
     alert(`讀取資料失敗: ${error.message}`);
+    updateApiBaseUI(error.message);
   }
 }
 
@@ -167,6 +213,18 @@ resetFiltersBtn.addEventListener("click", () => {
   loadTransactions();
 });
 
+if (apiBaseApplyBtn && apiBaseInput) {
+  apiBaseApplyBtn.addEventListener("click", () => {
+    applyApiBaseOverride(apiBaseInput.value);
+  });
+}
+
+if (apiBaseResetBtn) {
+  apiBaseResetBtn.addEventListener("click", () => {
+    applyApiBaseOverride("");
+  });
+}
+
 tableBody.addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button) return;
@@ -226,8 +284,10 @@ async function loadCalendar() {
       `${API_BASE}/api/transactions/calendar?year=${year}&month=${month}`
     );
     renderCalendar(summaries);
+    updateApiBaseUI();
   } catch (error) {
     console.error(error);
+    updateApiBaseUI(error.message);
   }
 }
 
@@ -298,6 +358,7 @@ function renderCalendar(summaries) {
 }
 
 async function init() {
+  updateApiBaseUI();
   await Promise.all([loadTransactions(), loadCalendar()]);
 }
 

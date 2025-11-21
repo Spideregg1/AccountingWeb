@@ -31,6 +31,28 @@
       </header>
 
       <main>
+        <section class="panel connection-panel">
+          <div class="connection-title">
+            <h2>API 連線</h2>
+            <p class="hint">後端若不在相同網域，請輸入完整位址，例如 http://localhost:5000</p>
+          </div>
+          <div class="connection-controls">
+            <label class="connection-input">
+              <span>API 位址</span>
+              <input
+                id="api-base-input"
+                type="text"
+                inputmode="url"
+                placeholder="例如 http://localhost:5000"
+              />
+            </label>
+            <div class="connection-actions">
+              <button type="button" id="apply-api-base">套用</button>
+              <button type="button" id="reset-api-base" class="secondary">還原自動偵測</button>
+            </div>
+            <p id="api-base-status" class="hint muted"></p>
+          </div>
+        </section>
 
         <section class="panel">
           <h2>查詢條件</h2>

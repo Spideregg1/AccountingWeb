@@ -118,6 +118,60 @@ main {
   backdrop-filter: blur(6px);
 }
 
+.connection-panel {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1.1fr 1.2fr;
+  align-items: center;
+  border: 1px dashed rgba(37, 99, 235, 0.25);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(255, 255, 255, 0.8));
+}
+
+.connection-title h2 {
+  margin: 0 0 0.35rem;
+}
+
+.connection-title .hint {
+  margin: 0;
+}
+
+.connection-controls {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.connection-input {
+  display: grid;
+  gap: 0.35rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.connection-input input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+}
+
+.connection-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.connection-actions button.secondary {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid var(--border);
+}
+
+.connection-panel .muted {
+  color: #64748b;
+}
+
 .highlight-panel {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -456,6 +510,10 @@ tbody tr:hover {
   header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .connection-panel {
+    grid-template-columns: 1fr;
   }
 
   .calendar {
