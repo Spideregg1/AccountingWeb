@@ -10,10 +10,14 @@ function detectApiBase() {
   if (savedApiBase) return savedApiBase;
   if (configuredApiBase) return configuredApiBase;
   if (isHttpProtocol) return window.location.origin;
-  return "http://localhost:5000";
+  return null;
 }
 
-let API_BASE = detectApiBase().replace(/\/$/, "");
+function normalizeApiBase(base) {
+  return base ? base.replace(/\/$/, "") : null;
+}
+
+let API_BASE = normalizeApiBase(detectApiBase());
 
 const filterForm = document.getElementById("filter-form");
 const resetFiltersBtn = document.getElementById("reset-filters");
@@ -66,10 +70,10 @@ function updateApiBaseUI(message = "") {
       ? "使用 data-api-base 指定的 API"
       : isHttpProtocol
         ? "使用目前頁面的網域"
-        : "使用本機預設 http://localhost:5000";
+        : "尚未設定 API 位址";
 
   const messageText = message ? ` — ${message}` : "";
-  apiBaseStatus.textContent = `${sourceLabel}（目前: ${API_BASE}）${messageText}`;
+  apiBaseStatus.textContent = `${sourceLabel}（目前: ${API_BASE ?? "未設定"}）${messageText}`;
   apiBaseResetBtn.disabled = !savedApiBase;
 }
 
@@ -77,10 +81,10 @@ function applyApiBaseOverride(newBase) {
   const trimmed = newBase.trim();
   if (trimmed) {
     localStorage.setItem("apiBaseOverride", trimmed);
-    API_BASE = trimmed.replace(/\/$/, "");
+    API_BASE = normalizeApiBase(trimmed);
   } else {
     localStorage.removeItem("apiBaseOverride");
-    API_BASE = detectApiBase().replace(/\/$/, "");
+    API_BASE = normalizeApiBase(detectApiBase());
   }
 
   updateApiBaseUI();
@@ -124,6 +128,13 @@ function getFilterParams() {
 }
 
 async function loadTransactions() {
+  if (!API_BASE) {
+    updateApiBaseUI("請先設定 API 位址以載入資料");
+    tableBody.innerHTML = "";
+    resultCount.textContent = "0 筆";
+    return;
+  }
+
   try {
     const params = getFilterParams();
     const data = await fetchJson(`${API_BASE}/api/transactions?${params.toString()}`);
@@ -278,6 +289,12 @@ async function loadCalendar() {
   const year = state.calendarDate.getFullYear();
   const month = state.calendarDate.getMonth() + 1;
   calendarLabel.textContent = `${year} / ${month.toString().padStart(2, "0")}`;
+
+  if (!API_BASE) {
+    updateApiBaseUI("請先設定 API 位址以載入資料");
+    calendarContainer.innerHTML = "";
+    return;
+  }
 
   try {
     const summaries = await fetchJson(
