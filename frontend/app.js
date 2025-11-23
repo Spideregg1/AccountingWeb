@@ -5,7 +5,7 @@ function getSavedApiBase() {
   return localStorage.getItem("apiBaseOverride")?.trim();
 }
 
-function detectApiBase() {
+function detectRawApiBase() {
   const savedApiBase = getSavedApiBase();
   if (savedApiBase) return savedApiBase;
   if (configuredApiBase) return configuredApiBase;
@@ -14,10 +14,26 @@ function detectApiBase() {
 }
 
 function normalizeApiBase(base) {
-  return base ? base.replace(/\/$/, "") : null;
+  if (!base) return null;
+
+  const trimmed = base.trim();
+  if (!trimmed) return null;
+
+  try {
+    const url = new URL(trimmed);
+    if (!url.protocol.startsWith("http")) return null;
+    return `${url.origin}${url.pathname.replace(/\/$/, "")}`;
+  } catch (error) {
+    console.error("Invalid API base:", error);
+    return null;
+  }
 }
 
-let API_BASE = normalizeApiBase(detectApiBase());
+const initialRawBase = detectRawApiBase();
+if (getSavedApiBase() && !normalizeApiBase(getSavedApiBase())) {
+  localStorage.removeItem("apiBaseOverride");
+}
+let API_BASE = normalizeApiBase(initialRawBase);
 
 const filterForm = document.getElementById("filter-form");
 const resetFiltersBtn = document.getElementById("reset-filters");
@@ -80,11 +96,16 @@ function updateApiBaseUI(message = "") {
 function applyApiBaseOverride(newBase) {
   const trimmed = newBase.trim();
   if (trimmed) {
-    localStorage.setItem("apiBaseOverride", trimmed);
-    API_BASE = normalizeApiBase(trimmed);
+    const normalized = normalizeApiBase(trimmed);
+    if (!normalized) {
+      updateApiBaseUI("請輸入以 http/https 開頭的完整 API 位址");
+      return;
+    }
+    localStorage.setItem("apiBaseOverride", normalized);
+    API_BASE = normalized;
   } else {
     localStorage.removeItem("apiBaseOverride");
-    API_BASE = normalizeApiBase(detectApiBase());
+    API_BASE = normalizeApiBase(detectRawApiBase());
   }
 
   updateApiBaseUI();
@@ -175,6 +196,11 @@ function renderTransactions(items) {
 
 transactionForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (!API_BASE) {
+    alert("請先設定 API 位址，再儲存或編輯資料。");
+    updateApiBaseUI("尚未設定 API 位址");
+    return;
+  }
   const formData = new FormData(transactionForm);
   const payload = Object.fromEntries(formData.entries());
   payload.amount = Number(payload.amount);
@@ -247,6 +273,11 @@ tableBody.addEventListener("click", async (event) => {
   if (button.dataset.action === "edit") {
     startEdit(id);
   } else if (button.dataset.action === "delete") {
+    if (!API_BASE) {
+      alert("請先設定 API 位址以刪除紀錄。");
+      updateApiBaseUI("尚未設定 API 位址");
+      return;
+    }
     if (confirm("確定刪除這筆紀錄嗎？")) {
       try {
         await fetchJson(`${API_BASE}/api/transactions/${id}`, { method: "DELETE" });
@@ -259,6 +290,11 @@ tableBody.addEventListener("click", async (event) => {
 });
 
 async function startEdit(id) {
+  if (!API_BASE) {
+    alert("請先設定 API 位址以讀取紀錄。");
+    updateApiBaseUI("尚未設定 API 位址");
+    return;
+  }
   try {
     const item = await fetchJson(`${API_BASE}/api/transactions/${id}`);
     formFields.id.value = item.id;
